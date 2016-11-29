@@ -1,0 +1,115 @@
+Option Explicit
+
+Sub FormatCell()
+'
+' FormatCell Macro
+'
+
+    Dim CurrCell As Range
+    Dim CurrFormat As String
+    Dim pos As Long
+    Dim percString As String
+    Dim RegEx As New RegExp
+    Dim i As Long
+    Dim count As Long: count = 0
+            
+    RegEx.pattern = "^0+(\.0+)?%$"
+            
+    For Each CurrCell In Selection
+        CurrFormat = CurrCell.NumberFormat
+            
+        'check if selection is actually formatted as a percentage
+        If RegEx.test(CurrFormat) Then
+            'check for rounding
+            pos = InStr(1, CurrFormat, ".")
+    
+            If pos > 0 Then
+                percString = "0."
+                For i = 1 To Len(CurrFormat) - pos - 1
+                    percString = percString & "0"
+                Next
+                percString = percString & "%"
+            Else
+                percString = "0%"
+            End If
+        
+            CurrCell.NumberFormat = "[Green]+ " & percString & ";[Red] - " & percString & "; " & percString & ""
+            count = count + 1
+        End If
+            
+    Next
+    
+    MsgBox "Updated format in " & count & " cells."
+    
+End Sub
+
+Sub colorRed()
+    Dim RegEx As New RegExp
+    Dim pos As Long
+    Dim str As String
+    Dim strlen As Long
+    
+    Dim match As Variant
+    Dim matches As Variant
+    
+    Dim cell As Range
+    
+    str = "red"
+    strlen = Len(str)
+    
+    'Set regex pattern to match str preceded by space, followed by space or punctuation
+    RegEx.pattern = "\s*" & str & "[\s,.'\"";:-]*"
+    
+    RegEx.Global = True
+    RegEx.IgnoreCase = True
+    
+    For Each cell In Selection
+        Set matches = RegEx.Execute(cell.Value)
+        For Each match In matches
+            pos = match.FirstIndex
+            If pos = 0 Then
+                Selection.Characters(pos, strlen).Font.Color = vbRed
+            Else
+                Selection.Characters(pos + 2, strlen).Font.Color = vbRed
+            End If
+        Next match
+    Next cell
+    
+    Set matches = Nothing
+    
+End Sub
+
+Sub AlignHeaders()
+'Aligns column headers based on cell contents in data set (based on 1st row)
+'
+'Basically, if user has clicked an alignment button, we'll align that way
+'Otherwise, Text and General format are left-aligned, everything else is right-aligned
+
+    Dim headerCell As Range
+    Dim dataCell As Range
+    Dim dataFormat As String
+    Dim dataAlign As Variant
+    
+    For Each headerCell In Selection
+        Set dataCell = headerCell.Offset(1, 0)
+        dataFormat = CellFormat(dataCell)
+        dataAlign = dataCell.HorizontalAlignment
+        
+        If dataAlign <> 1 Then ' 1 means alignment isn't explicitly set (default)
+            headerCell.HorizontalAlignment = dataAlign
+        ElseIf dataFormat = "General" Or dataFormat = "@" Then ' @ is Text
+            headerCell.HorizontalAlignment = xlLeft
+        Else
+            headerCell.HorizontalAlignment = xlRight
+        End If
+    Next headerCell
+    
+    Set dataCell = Nothing
+
+End Sub
+
+
+Function CellFormat(Selection)
+    Application.Volatile
+    CellFormat = Selection.NumberFormat
+End Function
