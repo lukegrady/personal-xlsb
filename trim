@@ -1,0 +1,14 @@
+Sub TRIM()
+	'Trims whitespace from cell contents
+	'
+	'Works on each cell in current selection (range)
+	'
+	'NOTE: Does NOT modify formula, only works on cells with values
+	'
+	For Each c In Selection
+		If Not c.HasFormula Then
+			c.Value = Application.TRIM(c.Value)
+		End If
+	Next c
+End Sub
+

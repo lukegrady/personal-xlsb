@@ -1,0 +1,21 @@
+Sub IFERROR()
+	'Wrap formula in IFERROR if not already there
+	'
+	'Works on each cell in current selection (range)
+	'
+	'NTOE: Does NOT modify values, only works on cells with formulas
+	'
+	For Each c In Selection
+		If Not c.HasFormula Then
+		ElseIf Left(c.Formula, 9) <> "=IFERROR(" Then
+			c.Formula = "=IFERROR(" & Right(c.Formula, Len(c.Formula) - 1) & ", 0"
+		ElseIf Right(c.Formula, 3) = ",0)" Then
+			c.Formula = Left(c.Formula, Len(c.Formula) - 3) & ","""")"
+		ElseIf Right(c.Formula, 4) = ", 0)" Then
+			c.Formula = Left(c.Formula, Len(c.Formula) - 4) & ","""")"
+		Else
+			c.Formula = Left(c.Formula, Len(c.Formula) - 4) & ",0)"
+		End If
+	Next c
+End Sub
+		

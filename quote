@@ -1,0 +1,22 @@
+Sub QUOTE()
+	'Quote text so it's usable in SQL
+	'If text is already quoted, toggle between single and double quotes
+	'
+	'Works on each cell in current selection (range)
+	'
+	'NOTE: Does NOT modify formula, only works on cells with values
+	'
+	For Each c In Selection
+		If Not c.HasFormula Then
+			If c.Value = "" Then
+			ElseIf Left(c.Value, 1) = """" And Right(c.Value, 1) = """" Then
+				c.Value = Chr(39) & Chr(39) & Mid(c.Value, 2, Len(c.Value) - 2) & Chr(39)
+			ElseIf Left(c.Value, 1) = "'" And Right(c.Value, 1) = "'" Then
+				c.Value = Chr(34) & Mid(c.Value, 2, Len(c.Value) - 2) & Chr(34)
+			Else
+				c.Value = Chr(39) & Chr(39) & c.Value & Chr(39)
+			End If
+		End If
+	Next c
+End Sub
+		
